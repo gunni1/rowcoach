@@ -7,6 +7,12 @@
     <groupId>org.fun</groupId>
     <artifactId>rowcoach</artifactId>
     <version>0.1-SNAPSHOT</version>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
     
 </project>
