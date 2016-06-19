@@ -6,6 +6,8 @@ import org.bytedeco.javacpp.opencv_imgproc._
 import org.bytedeco.javacv._
 import javax.swing._
 
+import org.bytedeco.javacpp._
+
 /**
   * Created by Guntram on 04.06.2016.
   */
@@ -14,15 +16,40 @@ object Main {
     val filePath = "src/main/resources/einsatz.png"
 
     val inputImage = imread(filePath)
-    val theshedImage = binarize(inputImage)
-    display(theshedImage, "demo")
+    val grayImage = grayscale(inputImage)
+    //val threshImage = binarize(grayImage)
+    val threshImage = adaptiveBinarize(grayImage)
+
+    display(threshImage, "demo")
   }
 
   def binarize(source: Mat): Mat = {
-    var threshImage = new Mat()
+    val threshImage = new Mat
+    val otsuImage = new Mat
+    val thresh = threshold(source,otsuImage, 128, 255, CV_THRESH_OTSU)
+    println("otsu threshold: " + thresh)
+    threshold(source, threshImage, thresh,255, CV_THRESH_BINARY)
 
-    threshold(source,threshImage, 100, 150, THRESH_BINARY_INV)
+    threshImage
+  }
 
+  def smoothImage(source: Mat): Mat = {
+    val smoothImage = new Mat
+
+    smoothImage
+  }
+
+  def adaptiveBinarize(source: Mat): Mat = {
+    val threshImage = new Mat
+    val blockSize = 101
+    val c = -7
+    adaptiveThreshold(source, threshImage,255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, blockSize, c)
+    threshImage
+  }
+
+  def grayscale(source: Mat): Mat = {
+    val threshImage = new Mat
+    cvtColor(source, threshImage, CV_BGR2GRAY)
     threshImage
   }
 
