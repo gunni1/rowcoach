@@ -20,8 +20,36 @@ object Main {
     //val threshImage = binarize(grayImage)
     val threshImage = adaptiveBinarize(grayImage)
 
-    display(threshImage, "demo")
+    val filter = new ImageFilter with GrayScale with Blur
+    val testImage = filter.filter(inputImage)
+
+    display(testImage, "demo")
   }
+
+  abstract class Filter {
+    def filter(input: Mat): Mat
+  }
+
+  class ImageFilter {
+    def filter(input: Mat): Mat = input
+  }
+
+  trait GrayScale extends ImageFilter {
+    override def filter(input: Mat) = {
+      val preFiltered = super.filter(input); val out = new Mat; cvtColor(preFiltered, out, CV_BGR2GRAY); out}
+  }
+
+  trait Blur extends ImageFilter {
+    override def filter(input: Mat) = {
+      val preFiltered = super.filter(input); val out = new Mat; blur(preFiltered, out, new Size(5,5)); out
+    }
+  }
+
+
+  trait Operation {
+    def apply(input: Mat): Mat
+  }
+
 
   def binarize(source: Mat): Mat = {
     val threshImage = new Mat
@@ -29,6 +57,7 @@ object Main {
     val thresh = threshold(source,otsuImage, 128, 255, CV_THRESH_OTSU)
     println("otsu threshold: " + thresh)
     threshold(source, threshImage, thresh,255, CV_THRESH_BINARY)
+
 
     threshImage
   }
