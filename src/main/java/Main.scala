@@ -1,3 +1,4 @@
+import java.awt.image.ImageFilter
 import java.io.File
 
 import org.bytedeco.javacpp.opencv_core._
@@ -16,56 +17,42 @@ object Main {
     val filePath = "src/main/resources/einsatz.png"
 
     val inputImage = imread(filePath)
-    val grayImage = grayscale(inputImage)
-    //val threshImage = binarize(grayImage)
-    val threshImage = adaptiveBinarize(grayImage)
 
-    val filter = new ImageFilter with GrayScale with Blur
-    val testImage = filter.filter(inputImage)
+    val filters = List(GrayScale, Blur(5))
+    val processedImage = processFilters(inputImage, filters)
 
-    display(testImage, "demo")
+
+    display(processedImage, "demo")
   }
 
-  abstract class Filter {
-    def filter(input: Mat): Mat
+  def processFilters(image: Mat,filters: List[ImageFilter]): Mat = { filters match{
+    case Nil => image
+    case f :: fs => processFilters(f.applyFilter(image), fs)
+  }}
+
+  trait ImageFilter {
+    def applyFilter(input: Mat): Mat = input
   }
 
-  class ImageFilter {
-    def filter(input: Mat): Mat = input
+  object GrayScale extends ImageFilter {
+    override def applyFilter(input: Mat) = {
+      val out = new Mat; cvtColor(input, out, CV_BGR2GRAY); out}
   }
 
-  trait GrayScale extends ImageFilter {
-    override def filter(input: Mat) = {
-      val preFiltered = super.filter(input); val out = new Mat; cvtColor(preFiltered, out, CV_BGR2GRAY); out}
-  }
-
-  trait Blur extends ImageFilter {
-    override def filter(input: Mat) = {
-      val preFiltered = super.filter(input); val out = new Mat; blur(preFiltered, out, new Size(5,5)); out
+  case class Blur(boxSize: Int) extends ImageFilter {
+    override def applyFilter(input: Mat) = {
+      val out = new Mat; blur(input, out, new Size(boxSize,boxSize)); out
     }
   }
 
-
-  trait Operation {
-    def apply(input: Mat): Mat
-  }
-
-
-  def binarize(source: Mat): Mat = {
-    val threshImage = new Mat
-    val otsuImage = new Mat
-    val thresh = threshold(source,otsuImage, 128, 255, CV_THRESH_OTSU)
-    println("otsu threshold: " + thresh)
-    threshold(source, threshImage, thresh,255, CV_THRESH_BINARY)
-
-
-    threshImage
-  }
-
-  def smoothImage(source: Mat): Mat = {
-    val smoothImage = new Mat
-
-    smoothImage
+  object BinarizeGlobal extends ImageFilter {
+    override def applyFilter(input: Mat) = {
+      val threshImage = new Mat
+      val otsuImage = new Mat
+      val thresh = threshold(input,otsuImage, 128, 255, CV_THRESH_OTSU)
+      threshold(input, threshImage, thresh,255, CV_THRESH_BINARY)
+      threshImage
+    }
   }
 
   def adaptiveBinarize(source: Mat): Mat = {
@@ -73,12 +60,6 @@ object Main {
     val blockSize = 101
     val c = -7
     adaptiveThreshold(source, threshImage,255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, blockSize, c)
-    threshImage
-  }
-
-  def grayscale(source: Mat): Mat = {
-    val threshImage = new Mat
-    cvtColor(source, threshImage, CV_BGR2GRAY)
     threshImage
   }
 
