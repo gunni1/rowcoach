@@ -30,6 +30,12 @@ case class BinarizeAdaptiveGauss(blockSize: Int, c: Int) extends ImageFilter {
   }
 }
 
+case class CutSides(pixels: Int) extends ImageFilter {
+  override def applyFilter(input: Mat) = {
+    input.colRange(pixels, input.size.width-pixels)
+  }
+}
+
 /**
   * @param blockSize
   * @param c - Konstante, wird vom Mittelwert abgezogen

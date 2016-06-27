@@ -13,19 +13,14 @@ import org.bytedeco.javacpp._
   */
 object Main {
   def main(args: Array[String]) {
-    val filePath = "src/main/resources/einsatz.png"
+    val filePath = "src/main/resources/ausheben.png"
 
     val inputImage = imread(filePath)
     val startTime = System.currentTimeMillis
-    val width = inputImage.size.width
-    val oneFourth = width/4
+    val oneFourth = inputImage.size.width/4
 
-    println("cut " + oneFourth)
-
-    val resized = inputImage.colRange(oneFourth,width-oneFourth)
-
-    val filters = List(GrayScale,Blur(3),BinarizeAdaptiveMean(31,31))
-    val processedImage = processFilters(resized, filters)
+    val filters = List(CutSides(oneFourth), GrayScale,Blur(3),BinarizeAdaptiveMean(31,31))
+    val processedImage = processFilters(inputImage, filters)
 
     val endTime = System.currentTimeMillis
     println("Berechnungszeit: " + (endTime-startTime) + " ms")
