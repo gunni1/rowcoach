@@ -19,7 +19,7 @@ object Main {
     val startTime = System.currentTimeMillis
     val oneFourth = inputImage.size.width/4
 
-    val filters = List(CutSides(oneFourth), GrayScale,Blur(3),BinarizeAdaptiveMean(31,31))
+    val filters = List(CutSides(oneFourth), GrayScale,Blur(3),BinarizeAdaptiveMean(31,31), Edge(110,140))
     val processedImage = processFilters(inputImage, filters)
 
     val endTime = System.currentTimeMillis

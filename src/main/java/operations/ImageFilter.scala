@@ -48,6 +48,13 @@ case class BinarizeAdaptiveMean(blockSize: Int, c: Int) extends ImageFilter {
   }
 }
 
+case class Edge(low: Int, high: Int) extends ImageFilter {
+  override def applyFilter(input: Mat) ={
+    val edgeImage = new Mat ; Canny(input, edgeImage , low, high, 7, true); edgeImage
+
+  }
+}
+
 object BinarizeGlobal extends ImageFilter {
   override def applyFilter(input: Mat) = {
     val threshImage = new Mat
